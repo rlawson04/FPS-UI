@@ -1,5 +1,6 @@
 using System.Collections;
 using System.Collections.Generic;
+using TMPro;
 using Unity.VisualScripting.Antlr3.Runtime;
 using UnityEngine;
 using UnityEngine.EventSystems;
@@ -9,11 +10,11 @@ public class UIManager : MonoBehaviour
 {
     [SerializeField] GameObject pauseMenu;
     [SerializeField] GameObject menu;
-    [SerializeField] MonoBehaviour fpsController;
+    [SerializeField] FirstPersonController fpsController;
     [SerializeField] GameObject settingsMenu;
     [SerializeField] GameObject playerUI;
     [SerializeField] Slider sensitivitySlider;
-    [SerializeField] float lookSensitivity;
+    public TextMeshProUGUI sensitivityText;
     bool isOpen;
 
     private void Start()
@@ -21,12 +22,14 @@ public class UIManager : MonoBehaviour
         menu.SetActive(false);
         pauseMenu.SetActive(false);
         settingsMenu.SetActive(false);
+        sensitivitySlider.value = fpsController.mouseSensitivity;
         sensitivitySlider.onValueChanged.AddListener(UpdateSensitivity);
+        UpdateSensitivity(fpsController.mouseSensitivity);
     }
 
     private void Update()
     {
-        if (Input.GetKeyDown(KeyCode.P)){
+        if (Input.GetKeyDown(KeyCode.P) && !isOpen){
             OpenPauseMenu();
         }
     }
@@ -46,6 +49,8 @@ public class UIManager : MonoBehaviour
     {
         isOpen = !isOpen;
         menu.SetActive(false);
+        Cursor.lockState = isOpen ? CursorLockMode.None : CursorLockMode.Locked;
+        Cursor.visible = isOpen;
         Time.timeScale = 1;
         playerUI.SetActive(true);
         fpsController.enabled = true;
@@ -75,7 +80,9 @@ public class UIManager : MonoBehaviour
 
     public void UpdateSensitivity(float newValue)
     {
-        lookSensitivity = newValue;
+        // Testing Debug.Log(newValue);
+        fpsController.mouseSensitivity = newValue;
+        sensitivityText.SetText(newValue.ToString("0.00"));
     }
 
 }
